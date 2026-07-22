@@ -105,8 +105,6 @@
 
     .desc { color: var(--muted); font-size: 12px; margin-top: 4px; }
 
-    .info-box { display: flex; gap: 10px; margin-top: 10px; padding: 10px; background: var(--light-blue); border-radius: 8px; color: #12385f; font-size: 13px; }
-
     .subsection-title { margin: 0 0 10px; color: var(--blue); text-transform: uppercase; font-weight: 800; padding: 6px 10px; background: var(--light-blue); border-radius: 5px; }
 
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
@@ -138,7 +136,8 @@
 
     footer { display: flex; justify-content: space-between; gap: 16px; color: var(--muted); font-size: 12px; padding-top: 8px; }
 
-    .summary-line { margin-top: 10px; border: 1px solid var(--border); background: #fbfcfe; border-radius: 8px; padding: 10px; font-family: Consolas,monospace; color: #0f2742; }
+    .summary-line { display: none; margin-top: 10px; border: 1px solid var(--border); background: #fbfcfe; border-radius: 8px; padding: 10px; font-family: Consolas,monospace; color: #0f2742; }
+    .summary-line.admin-visible { display: block; }
 
     /* Custom builder bar — always visible */
     .custom-builder-bar {
@@ -228,6 +227,7 @@
     .partial-length-toggle input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--blue); }
     .partial-length-toggle .desc { margin: 5px 0 0 27px; }
     .partial-details-hidden { display: none; }
+    .pipe-side-panel.partial-panel-hidden { display: none; }
     .side-divider { height: 1px; background: var(--border); margin: 12px 0 10px; }
     .attachments-full { width: 100%; }
 
@@ -537,9 +537,8 @@
                 <div class="desc">Check this box to provide the processed length, start location, and processing notes.</div>
               </div>
             </div>
-            <div class="pipe-side-panel">
+            <div class="pipe-side-panel partial-panel-hidden" id="pipeSidePanel">
               <h3 class="subsection-title">Length Exceptions / Processing</h3>
-              <p class="form-note" id="partialDetailsPrompt">Check “Partial lengths or special processing required” to enter exception details.</p>
               <div id="partialDetails" class="partial-details-hidden">
                 <p class="form-note">Use these fields for partial lengths, processed-only sections, or any quantity/length setup that does not fit the basic fields.</p>
                 <div class="field-grid side-field-grid">
@@ -584,6 +583,16 @@
             </div>
           </div>
 
+          <div class="custom-builder-bar" id="customBuilderBar">
+            <strong>Generate Visual and Confirm Specs</strong>
+            <div class="desc">Uses the RFQ pipe and perforating details already entered above. No re-keying unless needed.</div>
+            <div class="button-row">
+              <button type="button" onclick="openCustomPatternBuilder()">Generate Visual and Confirm Specs</button>
+              <button type="button" class="green" onclick="previewPattern()">Preview Pattern</button>
+              <button type="button" class="secondary" onclick="clearApprovedPattern()">Clear</button>
+            </div>
+          </div>
+
           <h3 class="subsection-title pattern-subsection-title">Row Pattern Detail</h3>
           <div class="pattern-detail-block">
             <p style="margin-top:0">Select the radial/end-view pattern that most closely matches the required row layout, otherwise build a custom pattern.</p>
@@ -597,17 +606,6 @@
               <label class="pattern-card"><input type="radio" name="pattern" value="G" /> <strong>Pattern G</strong><img class="pattern-img pattern-asset" src="images/patG.png" alt="Pattern G radial layout" /><div class="desc">2 rows @ 0°, 120°</div></label>
               <label class="pattern-card"><input type="radio" name="pattern" value="H" /> <strong>Pattern H</strong><img class="pattern-img pattern-asset" src="images/patH.png" alt="Pattern H radial layout" /><div class="desc">8 rows @ 45° spacing</div></label>
               <label class="pattern-card"><input type="radio" name="pattern" value="Custom" /> <strong>Custom</strong><div class="pattern-img radial-custom"></div><div class="desc">Build visual pattern from RFQ values</div></label>
-            </div>
-
-            <!-- Always-visible builder bar -->
-            <div class="custom-builder-bar" id="customBuilderBar">
-              <strong>Generate Visual and Confirm Specs</strong>
-              <div class="desc">Uses the RFQ pipe and perforating details already entered above. No re-keying unless needed.</div>
-              <div class="button-row">
-                <button type="button" onclick="openCustomPatternBuilder()">Generate Visual and Confirm Specs</button>
-                <button type="button" class="green" onclick="previewPattern()">Preview Pattern</button>
-                <button type="button" class="secondary" onclick="clearApprovedPattern()">Clear</button>
-              </div>
             </div>
 
             <div class="approved-pattern-box" id="approvedPatternBox">
@@ -631,10 +629,9 @@
               </div>
             </div>
 
-            <div class="info-box"><strong>i</strong><span>Most perforating requests can be defined by pipe size, length per pipe, number of lengths, hole diameter, center-to-center spacing, number of rows. Start/end offsets are locked at 12&quot; by machine constraint.</span></div>
           </div>
 
-          <div class="summary-line" id="summaryLine">Manufacturing summary preview will generate here.</div>
+          <div class="summary-line" id="summaryLine" aria-hidden="true">Manufacturing summary preview will generate here.</div>
           <div class="test-panel" id="testPanel"></div>
         </div>
       </section>
@@ -1051,10 +1048,10 @@
 
       function updatePartialDetailsVisibility() {
         var enabled = getCheckedValue('partial') === 'Partial';
+        var panel = document.getElementById('pipeSidePanel');
         var details = document.getElementById('partialDetails');
-        var prompt = document.getElementById('partialDetailsPrompt');
+        if (panel) panel.className = enabled ? 'pipe-side-panel' : 'pipe-side-panel partial-panel-hidden';
         if (details) details.className = enabled ? '' : 'partial-details-hidden';
-        if (prompt) prompt.style.display = enabled ? 'none' : '';
       }
 
       function updatePipeEndSummary() {
@@ -1339,7 +1336,19 @@
         drawSideSvg('approvedPatternSideSvg', p);
       }
 
-      function updateSummary() { updateCalculatedTotal(); updateStaggerOffset(); syncRowPositionPayload(); summaryLine.textContent = buildSummary(); }
+      function updateSummaryVisibility() {
+        var visible = isAdminTestMode();
+        summaryLine.className = visible ? 'summary-line admin-visible' : 'summary-line';
+        summaryLine.setAttribute('aria-hidden', visible ? 'false' : 'true');
+      }
+
+      function updateSummary() {
+        updateCalculatedTotal();
+        updateStaggerOffset();
+        syncRowPositionPayload();
+        summaryLine.textContent = buildSummary();
+        updateSummaryVisibility();
+      }
 
       function handleFormChange(event) {
         clearValidationState();
