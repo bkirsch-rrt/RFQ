@@ -372,7 +372,7 @@
     }
 
     @media print {
-      @page { size: Letter portrait; margin: 0.35in; }
+      @page { size: Letter portrait; margin: 0.6in 0.35in 0.4in; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
       html, body { width: auto !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #111827 !important; font-size: 8.5pt !important; line-height: 1.18 !important; }
       .page { width: 100% !important; max-width: none !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; }
@@ -425,10 +425,10 @@
       .metric .v { font-size: 10pt !important; }
       .svg-preview { padding: 0.05in !important; margin-top: 0.05in !important; border: 1px solid #9aa4af !important; overflow: visible !important; }
       .svg-preview svg { max-height: 1.9in !important; min-width: 0 !important; width: 100% !important; }
-      .approved-pattern-svgs .svg-box { padding: 0.04in !important; overflow: hidden !important; }
-      .approved-pattern-svgs .svg-box svg { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 1.4in !important; overflow: hidden !important; }
-      #approvedPatternSvg { width: 1.35in !important; height: 1.35in !important; margin: 0 auto !important; }
-      #approvedPatternSideSvg { height: 1.35in !important; }
+      .approved-pattern-svgs .svg-box { padding: 0.04in !important; overflow: visible !important; }
+      .approved-pattern-svgs .svg-box svg { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 1.45in !important; overflow: visible !important; }
+      #approvedPatternSvg { width: 1.45in !important; height: 1.45in !important; margin: 0 auto !important; overflow: visible !important; }
+      #approvedPatternSideSvg { width: 100% !important; height: 1.45in !important; overflow: visible !important; }
       .info-box, .summary-line { padding: 0.06in !important; margin-top: 0.06in !important; font-size: 8pt !important; border: 1px solid #9aa4af !important; background: #f8fbff !important; }
       .attachment-item { grid-template-columns: 0.45in 1fr !important; padding: 0.05in !important; break-inside: avoid; }
       .attachment-actions { display: none !important; }
@@ -521,7 +521,7 @@
               <label id="pipeEndRowLabel" style="display:none">Pipe Ends</label>
               <div id="pipeEndRowControl" class="pipe-end-summary" style="display:none">PVC selected — choose pipe end style.</div>
               <input type="hidden" id="pipeEndsValue" name="pipeEnds" />
-              <label class="req">Pipe Size (OD)</label>
+              <label class="req">Pipe Size (NPS)</label>
               <div class="unit-row"><input name="pipeOD" required /><select name="pipeODUnit"><option>inches</option><option>mm</option></select></div>
               <label>SDR / Schedule / Series</label><input name="pipeSpec" />
               <label class="req">Length Per Pipe</label>
@@ -601,10 +601,10 @@
 
             <!-- Always-visible builder bar -->
             <div class="custom-builder-bar" id="customBuilderBar">
-              <strong>Custom Pattern Builder</strong>
+              <strong>Generate Visual and Confirm Specs</strong>
               <div class="desc">Uses the RFQ pipe and perforating details already entered above. No re-keying unless needed.</div>
               <div class="button-row">
-                <button type="button" onclick="openCustomPatternBuilder()">Launch Custom Pattern Builder</button>
+                <button type="button" onclick="openCustomPatternBuilder()">Generate Visual and Confirm Specs</button>
                 <button type="button" class="green" onclick="previewPattern()">Preview Pattern</button>
                 <button type="button" class="secondary" onclick="clearApprovedPattern()">Clear</button>
               </div>
@@ -614,7 +614,7 @@
               <div class="approved-pattern-head">
                 <div class="approved-pattern-title">Pattern Preview</div>
                 <div class="button-row approved-pattern-actions">
-                  <button type="button" onclick="openCustomPatternBuilder()">Edit Custom Pattern</button>
+                  <button type="button" onclick="openCustomPatternBuilder()">Edit Visual and Specs</button>
                   <button type="button" class="secondary" onclick="clearApprovedPattern()">Clear</button>
                 </div>
               </div>
@@ -622,11 +622,11 @@
               <div class="approved-pattern-svgs">
                 <div class="svg-box">
                   <div class="svg-box-title">Radial / End View</div>
-                  <svg id="approvedPatternSvg" viewBox="0 0 340 340"></svg>
+                  <svg id="approvedPatternSvg" viewBox="0 0 380 380" preserveAspectRatio="xMidYMid meet"></svg>
                 </div>
                 <div class="svg-box">
                   <div class="svg-box-title">Unwrapped Side View</div>
-                  <svg id="approvedPatternSideSvg" viewBox="0 0 720 420"></svg>
+                  <svg id="approvedPatternSideSvg" viewBox="0 0 760 420" preserveAspectRatio="xMidYMid meet"></svg>
                 </div>
               </div>
             </div>
@@ -707,12 +707,12 @@
     </div>
   </div>
 
-  <!-- Custom Pattern Builder Modal -->
+  <!-- Generate Visual and Confirm Specs Modal -->
   <div class="modal-backdrop" id="customPatternModal" aria-hidden="true">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="builderTitle">
       <div class="modal-header">
         <div>
-          <h2 id="builderTitle">Custom Pattern Builder</h2>
+          <h2 id="builderTitle">Generate Visual and Confirm Specs</h2>
           <div class="desc">Pulled from the RFQ. Adjust here only if the visual needs a different assumption.</div>
         </div>
         <div class="button-row" style="margin-top:0">
@@ -725,7 +725,7 @@
           <div class="builder-panel">
             <h3>Pattern Inputs</h3>
             <div class="builder-field-row">
-              <div class="builder-field"><label id="b_pipeODLabel">Pipe OD</label><input id="b_pipeOD" type="number" step="0.001" /><input id="b_pipeODUnit" type="hidden" /></div>
+              <div class="builder-field"><label id="b_pipeODLabel">Pipe NPS</label><input id="b_pipeOD" type="number" step="0.001" /><input id="b_pipeODUnit" type="hidden" /></div>
               <div class="builder-field"><label id="b_pipeLengthLabel">Pipe Length</label><input id="b_pipeLength" type="number" step="0.001" /><input id="b_pipeLengthUnit" type="hidden" /></div>
             </div>
             <div class="builder-field-row">
@@ -804,11 +804,11 @@
             <div class="manufacturing-visuals">
               <div class="svg-box">
                 <div class="svg-box-title">Radial / End View</div>
-                <svg id="manufacturingRadialSvg" viewBox="0 0 340 340"></svg>
+                <svg id="manufacturingRadialSvg" viewBox="0 0 380 380" preserveAspectRatio="xMidYMid meet"></svg>
               </div>
               <div class="svg-box">
                 <div class="svg-box-title">Unwrapped Side View</div>
-                <svg id="manufacturingSideSvg" viewBox="0 0 720 420"></svg>
+                <svg id="manufacturingSideSvg" viewBox="0 0 760 420" preserveAspectRatio="xMidYMid meet"></svg>
               </div>
             </div>
           </div>
@@ -859,6 +859,7 @@
       function getCheckedValue(n) { var r = form.querySelectorAll('input[name="' + n + '"]'); for (var i = 0; i < r.length; i++) { if (r[i].checked) return r[i].value; } return ''; }
       function setFieldValue(n, v) { var f = form.elements[n]; if (f) f.value = v; }
       function setRadioValue(n, v) { var r = form.querySelectorAll('input[name="' + n + '"]'); for (var i = 0; i < r.length; i++) r[i].checked = r[i].value === v; }
+      function isAdminTestMode() { return getFieldValue('QuoteNum').toLowerCase() === 'admin'; }
 
       function normalizeDegree(v) { var n = toNumber(v); if (n === null) return null; n = n % 360; if (n < 0) n += 360; return Math.round(n * 1000) / 1000; }
       function formatDegree(v) { var n = normalizeDegree(v); return n === null ? '' : formatNumber(n) + '°'; }
@@ -885,8 +886,8 @@
 
       function getActiveRowDegrees() {
         if (getCheckedValue('pattern') === 'Custom' && getRowOverrideActive()) {
-          var od = readRowOverrideDegrees();
-          if (od) return od;
+          var overrideDegrees = readRowOverrideDegrees();
+          if (overrideDegrees) return overrideDegrees;
         }
         return getCurrentBaseDegrees();
       }
@@ -1110,13 +1111,21 @@
         return '';
       }
 
+      function formatEnteredMeasurement(value, unit, placeholder) {
+        var entered = trimText(value);
+        if (!entered) return placeholder;
+        var normalizedUnit = trimText(unit).toLowerCase();
+        if (normalizedUnit === 'inches' || normalizedUnit === 'inch' || normalizedUnit === 'in') return entered + '"';
+        return entered + (normalizedUnit ? ' ' + normalizedUnit : '');
+      }
+
       function buildSummary() {
         var material = getCheckedValue('material') || '[material]';
-        var od = getFieldValue('pipeOD') || '[OD]';
+        var nps = formatEnteredMeasurement(getFieldValue('pipeOD'), getSelectValue('pipeODUnit'), '[NPS]');
         var spec = getFieldValue('pipeSpec') || '[SDR/SCH]';
         var pattern = getCheckedValue('pattern') || '[pattern]';
-        var diameter = getFieldValue('holeDiameter') || '[diameter]';
-        var spacing = getFieldValue('holeSpacing') || '[spacing]';
+        var diameter = formatEnteredMeasurement(getFieldValue('holeDiameter'), getSelectValue('holeDiameterUnit'), '[diameter]');
+        var spacing = formatEnteredMeasurement(getFieldValue('holeSpacing'), getSelectValue('holeSpacingUnit'), '[spacing]');
         var rows = getFieldValue('holeRows') || '[rows]';
         var pipeEndsText = material === 'PVC' ? ' | Ends: ' + (getFieldValue('pipeEnds') || '[pipe ends]') : '';
         var staggerText = '';
@@ -1125,7 +1134,7 @@
           staggerText = ' | stagger ' + (sv ? sv + ' ' + su + ' (1/2 C-C)' : '1/2 C-C');
         }
         var approvedText = (approvedPattern && pattern === 'Custom') ? ' | APPROVED VISUAL: ' + approvedPattern.totalHolesPerPipe + ' holes/pipe' : '';
-        return od + ' ' + spec + ' ' + material + pipeEndsText + ' | ' + buildQuantityText() + ' | ' + diameter + ' holes | ' + spacing + ' C-C | ' + rows + ' rows | Pattern ' + pattern + staggerText + approvedText + buildQuantityWarning();
+        return nps + ' ' + spec + ' ' + material + pipeEndsText + ' | ' + buildQuantityText() + ' | ' + diameter + ' holes | ' + spacing + ' C-C | ' + rows + ' rows | Pattern ' + pattern + staggerText + approvedText + buildQuantityWarning();
       }
 
       function getDisplayValue(name) {
@@ -1140,7 +1149,7 @@
         var items = [
           { name: 'pipeSupplier', label: 'Pipe Supplied By', section: 'Pipe Information' },
           { name: 'material', label: 'Pipe Material', section: 'Pipe Information' },
-          { name: 'pipeOD', label: 'Pipe Size OD', section: 'Pipe Information' },
+          { name: 'pipeOD', label: 'Pipe Size NPS', section: 'Pipe Information' },
           { name: 'pipeLength', label: 'Length Per Pipe', section: 'Pipe Information' },
           { name: 'numberOfLengths', label: 'Number of Lengths', section: 'Pipe Information' },
           { name: 'holeDiameter', label: 'Hole Diameter', section: 'Perforating Details' },
@@ -1182,8 +1191,21 @@
       }
 
       function validateFormOnly() {
+        if (isAdminTestMode()) { renderAdminValidationBypass(); return; }
         var v = validateManufacturingInputs(true);
         if (!v.valid && v.firstSection && v.firstSection.scrollIntoView) v.firstSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+
+      function renderAdminValidationBypass() {
+        clearValidationState();
+        var entered = document.getElementById('enteredRequiredList');
+        var missing = document.getElementById('missingRequiredList');
+        var box = document.getElementById('validationResultBox');
+        var title = document.getElementById('validationResultTitle');
+        if (entered) entered.innerHTML = '<span class="spec-chip">Admin test mode</span>';
+        if (missing) missing.innerHTML = '<span class="spec-chip">Validation bypassed</span>';
+        if (title) title.textContent = 'Validation Bypassed — Admin Test Mode';
+        if (box) box.className = 'validation-result-box active valid';
       }
 
       function clearValidationState() {
@@ -1247,14 +1269,17 @@
         var metrics = document.getElementById('manufacturingMetrics');
         var specLine = document.getElementById('manufacturingSpecLine');
         if (specLine) specLine.textContent = buildSummary();
-        if (metrics) metrics.innerHTML = [metric('Rows', p.rowCount), metric('Row Positions', (p.rowDegrees || evenDegrees(p.rowCount)).map(formatDegree).join(', ')), metric('Holes / Row', p.holesPerRow), metric('Holes / Pipe', p.totalHolesPerPipe), metric('Total Holes', p.totalHolesAllLengths), metric('Spacing', formatInches(p.holeSpacing)), metric('Offsets', formatInches(p.startOffset) + ' / ' + formatInches(p.endOffset)), metric('Pipe OD', formatInches(p.pipeOD)), metric('Pipe Length', formatInches(p.pipeLength))].join('');
+        if (metrics) metrics.innerHTML = [metric('Rows', p.rowCount), metric('Row Positions', (p.rowDegrees || evenDegrees(p.rowCount)).map(formatDegree).join(', ')), metric('Holes / Row', p.holesPerRow), metric('Holes / Pipe', p.totalHolesPerPipe), metric('Total Holes', p.totalHolesAllLengths), metric('Spacing', formatInches(p.holeSpacing)), metric('Offsets', formatInches(p.startOffset) + ' / ' + formatInches(p.endOffset)), metric('Pipe NPS', formatEnteredMeasurement(getFieldValue('pipeOD'), getSelectValue('pipeODUnit'), '[NPS]')), metric('Pipe Length', formatInches(p.pipeLength))].join('');
         drawRadialSvg('manufacturingRadialSvg', p);
         drawSideSvg('manufacturingSideSvg', p);
       }
 
       function openManufacturingDetails() {
-        var v = validateManufacturingInputs(true);
-        if (!v.valid) { if (v.firstSection && v.firstSection.scrollIntoView) v.firstSection.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+        if (isAdminTestMode()) renderAdminValidationBypass();
+        else {
+          var v = validateManufacturingInputs(true);
+          if (!v.valid) { if (v.firstSection && v.firstSection.scrollIntoView) v.firstSection.scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+        }
         renderManufacturingDetails();
         document.getElementById('manufacturingDetailsModal').className = 'modal-backdrop active';
         document.getElementById('manufacturingDetailsModal').setAttribute('aria-hidden', 'false');
@@ -1299,7 +1324,7 @@
         var summary = document.getElementById('approvedPatternSummary');
         box.className = 'approved-pattern-box active';
         summary.innerHTML = '<div class="metric-grid">' + [
-          metric('Pipe OD', formatInches(p.pipeOD)),
+          metric('Pipe NPS', formatEnteredMeasurement(getFieldValue('pipeOD'), getSelectValue('pipeODUnit'), '[NPS]')),
           metric('Pipe Length', formatInches(p.pipeLength)),
           metric('Hole Dia', formatInches(p.holeDia)),
           metric('Spacing', formatInches(p.holeSpacing)),
@@ -1359,7 +1384,7 @@
 
       function pullBuilderFromRfq() {
         var p = collectRfqPatternData();
-        setBuilderMeasurement('b_pipeOD', 'Pipe OD', getFieldValue('pipeOD'), getSelectValue('pipeODUnit') || 'inches');
+        setBuilderMeasurement('b_pipeOD', 'Pipe NPS', getFieldValue('pipeOD'), getSelectValue('pipeODUnit') || 'inches');
         setBuilderMeasurement('b_pipeLength', 'Pipe Length', getFieldValue('pipeLength'), getSelectValue('pipeLengthUnit') || 'ft');
         setBuilderMeasurement('b_holeDia', 'Hole Diameter', getFieldValue('holeDiameter'), getSelectValue('holeDiameterUnit') || 'mm');
         setIdValue('b_rowCount', p.rowCount || 1);
@@ -1394,7 +1419,7 @@
 
       function refreshCustomPattern() {
         var p = collectBuilderPatternData();
-        document.getElementById('builderMetrics').innerHTML = [metric('Rows', p.rowCount), metric('Row Positions', (p.rowDegrees || evenDegrees(p.rowCount)).map(formatDegree).join(', ')), metric('Holes / Row', p.holesPerRow), metric('Holes / Pipe', p.totalHolesPerPipe), metric('Total Holes', p.totalHolesAllLengths), metric('Spacing', formatInches(p.holeSpacing)), metric('Offsets', formatInches(p.startOffset) + ' / ' + formatInches(p.endOffset)), metric('Pipe OD', formatInches(p.pipeOD)), metric('Pipe Length', formatInches(p.pipeLength))].join('');
+        document.getElementById('builderMetrics').innerHTML = [metric('Rows', p.rowCount), metric('Row Positions', (p.rowDegrees || evenDegrees(p.rowCount)).map(formatDegree).join(', ')), metric('Holes / Row', p.holesPerRow), metric('Holes / Pipe', p.totalHolesPerPipe), metric('Total Holes', p.totalHolesAllLengths), metric('Spacing', formatInches(p.holeSpacing)), metric('Offsets', formatInches(p.startOffset) + ' / ' + formatInches(p.endOffset)), metric('Pipe NPS', formatEnteredMeasurement(getFieldValue('pipeOD'), getSelectValue('pipeODUnit'), '[NPS]')), metric('Pipe Length', formatInches(p.pipeLength))].join('');
         drawRadialSvg('radialSvg', p);
         drawSideSvg('sideSvg', p);
       }
@@ -1436,9 +1461,11 @@
       function drawRadialSvg(svgId, p) {
         var svg = document.getElementById(svgId);
         if (!svg) return;
-        svg.setAttribute('viewBox', '0 0 340 340');
+        svg.setAttribute('viewBox', '0 0 380 380');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.setAttribute('overflow', 'visible');
         svg.innerHTML = '';
-        var cx = 170, cy = 170, radius = 115;
+        var cx = 190, cy = 190, radius = 115;
         var holeR = Math.max(4, Math.min(18, (p.holeDia / Math.max(p.pipeOD, 0.001)) * radius * 2));
         var rowDegrees = p.rowDegrees && p.rowDegrees.length ? p.rowDegrees : evenDegrees(p.rowCount);
         p.rowCount = rowDegrees.length || p.rowCount;
@@ -1447,21 +1474,23 @@
         for (var i = 0; i < rowDegrees.length; i++) {
           var theta = (normalizeDegree(rowDegrees[i]) - 90) * Math.PI / 180;
           var x = cx + radius * Math.cos(theta), y = cy + radius * Math.sin(theta);
-          var lx = cx + (radius + 30) * Math.cos(theta), ly = cy + (radius + 30) * Math.sin(theta);
+          var lx = cx + (radius + 36) * Math.cos(theta), ly = cy + (radius + 36) * Math.sin(theta);
           add(svg, 'line', { x1: cx, y1: cy, x2: x, y2: y, stroke: '#cbd5e1', 'stroke-width': 1 });
           add(svg, 'circle', { cx: x, cy: y, r: holeR, fill: '#0b5da8', stroke: '#003b73', 'stroke-width': 1 });
-          addText(svg, lx, ly + 4, String(i + 1), 'middle', '12px', '#111827');
+          addText(svg, lx, ly + 4, String(i + 1) + ' · ' + formatDegree(rowDegrees[i]), 'middle', '11px', '#111827');
         }
         addText(svg, cx, 22, rowDegrees.length + ' rows @ ' + rowDegrees.map(formatDegree).join(', '), 'middle', '13px', '#334155');
-        addText(svg, cx, 320, 'OD ' + formatInches(p.pipeOD) + ' | Hole ' + formatInches(p.holeDia), 'middle', '12px', '#667085');
+        addText(svg, cx, 362, 'NPS ' + formatEnteredMeasurement(getFieldValue('pipeOD'), getSelectValue('pipeODUnit'), '[NPS]') + ' | Hole ' + formatInches(p.holeDia), 'middle', '12px', '#667085');
       }
 
       function drawSideSvg(svgId, p) {
         var svg = document.getElementById(svgId);
         if (!svg) return;
-        svg.setAttribute('viewBox', '0 0 720 420');
+        svg.setAttribute('viewBox', '0 0 760 420');
+        svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+        svg.setAttribute('overflow', 'visible');
         svg.innerHTML = '';
-        var mL = 54, mT = 54, plotW = 610, plotH = 285;
+        var mL = 94, mT = 54, plotW = 610, plotH = 285;
         var rowDegrees = p.rowDegrees && p.rowDegrees.length ? p.rowDegrees : evenDegrees(p.rowCount);
         p.rowCount = rowDegrees.length || p.rowCount;
         var rowGap = p.rowCount > 1 ? plotH / (p.rowCount - 1) : 0;
@@ -1481,8 +1510,8 @@
         for (var row = 0; row < p.rowCount; row++) {
           var y = p.rowCount === 1 ? mT + plotH / 2 : mT + row * rowGap;
           add(svg, 'line', { x1: mL, y1: y, x2: mL + plotW, y2: y, stroke: '#e2e8f0', 'stroke-width': 1 });
-          addText(svg, mL - 26, y + 4, String(row + 1), 'middle', '12px', '#334155');
-          addText(svg, mL - 4, y + 4, formatDegree(rowDegrees[row]), 'end', '10px', '#667085');
+          addText(svg, mL - 54, y + 4, String(row + 1), 'middle', '12px', '#334155');
+          addText(svg, mL - 10, y + 4, formatDegree(rowDegrees[row]), 'end', '10px', '#667085');
           for (var h = 0; h < p.holesPerRow; h++) {
             var pos = p.startOffset + h * p.holeSpacing;
             if (p.staggered && row % 2 === 1) pos += staggerOffset;
