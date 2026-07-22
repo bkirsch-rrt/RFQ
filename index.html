@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Perforating RFQ - Index v8</title>
+  <title>Perforating RFQ</title>
   <style>
     :root {
       --blue: #003b73;
@@ -213,7 +213,8 @@
 
     .test-panel { display: none; margin-top: 10px; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fbfcfe; font-family: Consolas,monospace; font-size: 12px; white-space: pre-wrap; }
 
-    .customer-grid { grid-template-columns: 180px minmax(260px,1fr); align-items: center; }
+    .customer-grid { grid-template-columns: 155px minmax(190px,1fr) 155px minmax(190px,1fr); align-items: center; }
+    .customer-span { grid-column: 2 / -1; }
     .project-date-hidden { display: none !important; }
 
     .pipe-layout { display: grid; grid-template-columns: minmax(520px,0.95fr) minmax(320px,0.75fr); gap: 18px; align-items: start; }
@@ -222,6 +223,11 @@
     .form-note { margin: 0 0 10px; color: #334155; font-size: 13px; line-height: 1.45; }
     .side-field-grid { grid-template-columns: 145px minmax(160px,1fr); gap: 8px 10px; align-items: start; margin-top: 10px; }
     .side-field-grid textarea { min-height: 68px; }
+    .partial-length-toggle { margin-top: 2px; padding: 10px 12px; border: 1px solid #b6cbe0; border-radius: 8px; background: #f4faff; }
+    .partial-length-toggle label { display: flex; gap: 9px; align-items: flex-start; color: var(--blue); font-weight: 900; cursor: pointer; }
+    .partial-length-toggle input { width: 18px; height: 18px; margin-top: 1px; accent-color: var(--blue); }
+    .partial-length-toggle .desc { margin: 5px 0 0 27px; }
+    .partial-details-hidden { display: none; }
     .side-divider { height: 1px; background: var(--border); margin: 12px 0 10px; }
     .attachments-full { width: 100%; }
 
@@ -271,6 +277,8 @@
     .choice-button.selected { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 0 0 2px rgba(11,93,168,0.12); }
 
     .fixed-offset-note, .pipe-end-summary { border: 1px solid var(--border); border-radius: 6px; background: #fbfcfe; color: #334155; padding: 8px 9px; line-height: 1.35; }
+    .locked-value { background: #f1f5f9; color: #334155; font-weight: 900; cursor: not-allowed; }
+    .unit-suffix { min-width: 78px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--border); border-radius: 6px; background: #f1f5f9; color: #334155; font-weight: 800; }
     .pipe-end-summary strong { color: var(--blue); }
     .pipe-card.selected { border-color: var(--blue-2); background: #f0f7ff; box-shadow: 0 0 0 2px rgba(11,93,168,0.12); }
     .modal.small-modal { width: min(760px,96vw); }
@@ -292,7 +300,6 @@
     .row-override-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(100px,1fr)); gap: 6px; }
     .row-degree-field label { display: block; color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 3px; }
     .row-degree-field input { font-weight: 800; }
-    .fixed-stagger-note { border: 1px solid var(--border); border-radius: 6px; background: #fbfcfe; padding: 7px 9px; color: #334155; min-height: 34px; display: flex; align-items: center; }
     .row-override-panel.missing-control { border-color: #f04438 !important; box-shadow: 0 0 0 2px rgba(240,68,56,0.13); background: #fffafa; }
 
     /* Pattern img — radial end-view */
@@ -350,6 +357,7 @@
       .svg-box, .svg-preview { overflow-x: auto; -webkit-overflow-scrolling: touch; }
       footer { display: block; line-height: 1.7; }
       .compact-form > .field-grid, .compact-form .split .field-grid, .customer-grid, .side-field-grid { grid-template-columns: 1fr; }
+      .customer-span { grid-column: auto; }
       .compact-form .split, .pipe-layout, .pipe-end-picker { grid-template-columns: 1fr; }
       .choice-button { flex: 1 1 120px; }
       .approved-pattern-svgs { grid-template-columns: 1fr; }
@@ -366,7 +374,7 @@
     @media print {
       @page { size: Letter portrait; margin: 0.35in; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-      html, body { width: auto !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #111827 !important; font-size: 9.5pt !important; line-height: 1.25 !important; }
+      html, body { width: auto !important; min-width: 0 !important; margin: 0 !important; padding: 0 !important; background: #fff !important; color: #111827 !important; font-size: 8.5pt !important; line-height: 1.18 !important; }
       .page { width: 100% !important; max-width: none !important; margin: 0 !important; border: 0 !important; border-radius: 0 !important; box-shadow: none !important; overflow: visible !important; }
       header { display: grid !important; grid-template-columns: 1.55in 1fr 1.65in !important; gap: 0.15in !important; align-items: center !important; padding: 0 0 0.12in !important; margin-bottom: 0.1in !important; border-bottom: 1px solid #9aa4af !important; background: #fff !important; break-inside: avoid; }
       .logo { font-size: 23pt !important; letter-spacing: -1px !important; }
@@ -378,12 +386,21 @@
       .rfq-box label { font-size: 8pt !important; margin-bottom: 0.04in !important; }
       .content { padding: 0 !important; }
       #fileActionsSection, .modal-backdrop, .test-panel, .download-help, .validation-result-box, .custom-builder-bar .button-row, button, .button-row, .upload-row, .drop-zone { display: none !important; }
-      .section { margin: 0 0 0.09in !important; border: 1px solid #9aa4af !important; border-radius: 5px !important; overflow: visible !important; background: #fff !important; break-inside: avoid; }
+      .section { margin: 0 0 0.07in !important; border: 1px solid #9aa4af !important; border-radius: 5px !important; overflow: visible !important; background: #fff !important; break-inside: auto !important; }
       .section-title { padding: 0.05in 0.07in !important; font-size: 9.5pt !important; line-height: 1.1 !important; background: #eaf3fb !important; color: #003b73 !important; border-bottom: 1px solid #9aa4af !important; }
       .num { width: 0.22in !important; height: 0.22in !important; border-radius: 3px !important; font-size: 8.5pt !important; background: #003b73 !important; color: #fff !important; }
-      .section-body { padding: 0.08in !important; }
+      .section-title, .subsection-title { break-after: avoid !important; }
+      .section-body { padding: 0.065in !important; }
       .grid-2, .split { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 0.09in !important; }
-      .field-grid { display: grid !important; grid-template-columns: 1.22in 1fr !important; gap: 0.05in 0.07in !important; align-items: center !important; }
+      .field-grid { display: grid !important; grid-template-columns: 1.08in 1fr !important; gap: 0.04in 0.06in !important; align-items: center !important; }
+      .customer-grid { grid-template-columns: 1.05in 1fr 1.05in 1fr !important; gap: 0.045in 0.07in !important; }
+      .customer-span { grid-column: 2 / -1 !important; }
+      .pipe-layout { display: grid !important; grid-template-columns: 1.12fr 0.88fr !important; gap: 0.08in !important; align-items: start !important; }
+      .pipe-main-fields { max-width: none !important; }
+      .pipe-side-panel { padding: 0.07in !important; }
+      .side-field-grid { grid-template-columns: 0.95in 1fr !important; gap: 0.04in 0.05in !important; }
+      .partial-length-toggle { padding: 0.05in 0.06in !important; }
+      .partial-length-toggle .desc { display: none !important; }
       label { font-size: 8.4pt !important; line-height: 1.15 !important; }
       input, select, textarea { border: 1px solid #9aa4af !important; border-radius: 3px !important; padding: 0.04in 0.05in !important; min-height: 0.22in !important; font-size: 8.5pt !important; line-height: 1.2 !important; background: #fff !important; color: #111827 !important; box-shadow: none !important; }
       input[type="radio"], input[type="checkbox"] { width: auto !important; min-height: 0 !important; padding: 0 !important; }
@@ -394,17 +411,24 @@
       .choice-card.selected { background: #eaf3fb !important; border-color: #003b73 !important; }
       .subsection-title { margin: 0 0 0.065in !important; padding: 0.04in 0.06in !important; font-size: 9pt !important; background: #eaf3fb !important; }
       .pattern-grid { grid-template-columns: 1fr !important; gap: 0 !important; margin-top: 0.06in !important; }
+      .pattern-subsection-title, .pattern-detail-block > p:first-child { display: none !important; }
+      .pattern-grid::before { content: "ROW PATTERN DETAIL"; display: block !important; margin: 0 0 0.06in !important; padding: 0.04in 0.06in !important; font-size: 9pt !important; font-weight: 900 !important; color: #003b73 !important; background: #eaf3fb !important; break-after: avoid !important; }
       .pattern-card { display: none !important; }
       .pattern-card.selected { display: block !important; border: 1px solid #003b73 !important; background: #f8fbff !important; box-shadow: none !important; padding: 0.07in !important; break-inside: avoid; }
-      img.pattern-asset { height: 0.85in !important; max-height: 0.85in !important; margin: 0.04in 0 !important; }
-      .approved-pattern-box { display: block !important; border: 1px solid #98d7b2 !important; background: #e7f7ec !important; padding: 0.08in !important; margin-top: 0.07in !important; break-inside: avoid; }
-      .approved-pattern-svgs { grid-template-columns: 1fr 2fr !important; gap: 0.07in !important; }
+      img.pattern-asset { height: 0.7in !important; max-height: 0.7in !important; margin: 0.03in 0 !important; }
+      .approved-pattern-box { display: none !important; }
+      .approved-pattern-box.active { display: block !important; border: 1px solid #98d7b2 !important; background: #e7f7ec !important; padding: 0.07in !important; margin-top: 0.06in !important; break-inside: avoid !important; }
+      .approved-pattern-svgs { display: grid !important; grid-template-columns: 0.8fr 2.2fr !important; gap: 0.06in !important; align-items: start !important; }
       .metric-grid { grid-template-columns: repeat(4,1fr) !important; gap: 0.05in !important; margin: 0.05in 0 !important; }
       .metric { padding: 0.05in !important; border: 1px solid #9aa4af !important; border-radius: 4px !important; background: #fff !important; }
       .metric .k { font-size: 6.8pt !important; }
       .metric .v { font-size: 10pt !important; }
       .svg-preview { padding: 0.05in !important; margin-top: 0.05in !important; border: 1px solid #9aa4af !important; overflow: visible !important; }
       .svg-preview svg { max-height: 1.9in !important; min-width: 0 !important; width: 100% !important; }
+      .approved-pattern-svgs .svg-box { padding: 0.04in !important; overflow: hidden !important; }
+      .approved-pattern-svgs .svg-box svg { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; height: auto !important; max-height: 1.4in !important; overflow: hidden !important; }
+      #approvedPatternSvg { width: 1.35in !important; height: 1.35in !important; margin: 0 auto !important; }
+      #approvedPatternSideSvg { height: 1.35in !important; }
       .info-box, .summary-line { padding: 0.06in !important; margin-top: 0.06in !important; font-size: 8pt !important; border: 1px solid #9aa4af !important; background: #f8fbff !important; }
       .attachment-item { grid-template-columns: 0.45in 1fr !important; padding: 0.05in !important; break-inside: avoid; }
       .attachment-actions { display: none !important; }
@@ -436,7 +460,6 @@
         <div class="section-body">
           <div class="file-actions-grid">
             <div class="button-row" style="margin-top:0">
-              <button type="button" class="orange" onclick="downloadCurrentHtml()">Download HTML File</button>
               <button type="button" class="secondary" onclick="window.print()">Print / Save as PDF</button>
               <button type="button" onclick="validateFormOnly()">Validate Form</button>
               <button type="button" class="green" onclick="openManufacturingDetails()">Generate Manufacturing Details</button>
@@ -466,16 +489,16 @@
             <label>Contact Name</label><input name="contact" />
             <label>Email Address</label><input name="email" type="email" />
             <label>Phone Number</label><input name="phone" />
-            <label>Project Name</label><input name="project" />
+            <label>Project Name</label><input class="customer-span" name="project" />
             <label>Project Timing</label>
-            <div class="choice-row">
+            <div class="choice-row customer-span">
               <label class="choice-button"><input type="radio" name="projectTiming" value="TBD" checked /> Bid / End Date TBD</label>
-              <label class="choice-button"><input type="radio" name="projectTiming" value="Specific" /> Specific Dates</label>
+              <label class="choice-button"><input type="radio" name="projectTiming" value="Specific" /> Known End Date</label>
             </div>
             <label>Quote Required By</label><input name="quoteRequired" type="date" />
-            <label class="project-date-field-label">Product Required By</label><input class="project-date-field" name="productRequired" type="date" />
             <label>Sales Representative</label>
             <select name="salesRep"><option></option><option>Cory Hornung</option><option>Dale</option><option>Other</option></select>
+            <label class="project-date-field-label">Product Required By</label><input class="project-date-field customer-span" name="productRequired" type="date" />
           </div>
         </div>
       </section>
@@ -508,18 +531,22 @@
               <div class="unit-row"><input name="providedTotal" placeholder="If provided" /><select name="providedTotalUnit"><option>ft</option><option>m</option></select></div>
               <label>Calculated Total</label><input name="calculatedTotal" readonly placeholder="Length × # lengths" />
               <label>Quantity Notes</label><textarea name="quantityNotes" placeholder="Use when total quantity and length count do not match, or when customer provided unclear quantity info."></textarea>
+              <label>Length Exception?</label>
+              <div class="partial-length-toggle">
+                <label><input type="checkbox" name="partial" value="Partial" /> Partial lengths or special processing required</label>
+                <div class="desc">Check this box to provide the processed length, start location, and processing notes.</div>
+              </div>
             </div>
             <div class="pipe-side-panel">
               <h3 class="subsection-title">Length Exceptions / Processing</h3>
-              <p class="form-note">The main pipe fields assume equal lengths of pipe. Use this section for partial lengths, processed-only sections, or any quantity/length setup that does not fit the basic fields.</p>
-              <div class="choice-row">
-                <label class="choice-button"><input type="radio" name="partial" value="Entire" checked /> Entire Pipe Length</label>
-                <label class="choice-button"><input type="radio" name="partial" value="Partial" /> Partial / Special Lengths</label>
-              </div>
-              <div class="field-grid side-field-grid">
-                <label>Processed Length</label><div class="unit-row"><input name="processedLength" /><select name="processedLengthUnit"><option>ft</option><option>m</option></select></div>
-                <label>Start Location</label><div class="unit-row"><input name="startLocation" /><select name="startLocationUnit"><option>ft</option><option>m</option></select></div>
-                <label>Processing Notes</label><textarea name="partialNotes" placeholder="Example: first length full pipe, second length 20 ft only, customer supplied mixed lengths, etc."></textarea>
+              <p class="form-note" id="partialDetailsPrompt">Check “Partial lengths or special processing required” to enter exception details.</p>
+              <div id="partialDetails" class="partial-details-hidden">
+                <p class="form-note">Use these fields for partial lengths, processed-only sections, or any quantity/length setup that does not fit the basic fields.</p>
+                <div class="field-grid side-field-grid">
+                  <label>Processed Length</label><div class="unit-row"><input name="processedLength" /><select name="processedLengthUnit"><option>ft</option><option>m</option></select></div>
+                  <label>Start Location</label><div class="unit-row"><input name="startLocation" /><select name="startLocationUnit"><option>ft</option><option>m</option></select></div>
+                  <label>Processing Notes</label><textarea name="partialNotes" placeholder="Example: first length full pipe, second length 20 ft only, customer supplied mixed lengths, etc."></textarea>
+                </div>
               </div>
               <div class="side-divider"></div>
               <h3 class="subsection-title">Packaging Requirements</h3>
@@ -539,11 +566,9 @@
               <label class="req">Hole Diameter</label><div class="unit-row"><input name="holeDiameter" /><select name="holeDiameterUnit"><option>mm</option><option>inches</option></select></div>
               <label class="req">Center-to-Center Spacing</label><div class="unit-row"><input name="holeSpacing" /><select name="holeSpacingUnit"><option>mm</option><option>inches</option></select></div>
               <label class="req">Number of Rows</label><input name="holeRows" />
-              <label>Start / End Offset</label>
-              <div class="fixed-offset-note">Standard machine offset: first/last holes are 12&quot; from each pipe end. This is locked, not customer-selected.</div>
-              <input type="hidden" name="holeStartOffset" value="12" />
+              <label>Start Offset</label><div class="unit-row"><input class="locked-value" name="holeStartOffset" value="12" readonly /><span class="unit-suffix">inches</span></div>
               <input type="hidden" name="startOffsetUnit" value="inches" />
-              <input type="hidden" name="holeEndOffset" value="12" />
+              <label>End Offset</label><div class="unit-row"><input class="locked-value" name="holeEndOffset" value="12" readonly /><span class="unit-suffix">inches</span></div>
               <input type="hidden" name="endOffsetUnit" value="inches" />
             </div>
             <div class="field-grid">
@@ -552,11 +577,8 @@
                 <label><input type="radio" name="staggerRequired" value="No" checked /> No</label>
                 <label><input type="radio" name="staggerRequired" value="Yes" /> Yes</label>
               </div>
-              <label>Stagger Offset</label>
-              <div class="fixed-stagger-note" id="staggerOffsetNote">If staggered, offset is locked to 1/2 of C-C spacing.</div>
               <input type="hidden" name="staggerOffset" />
               <input type="hidden" name="staggerOffsetUnit" />
-              <label>Pattern / Row Notes</label><textarea name="patternNotes" placeholder="Use only for unusual row layout, custom stagger, or special orientation."></textarea>
               <input type="hidden" id="rowPositionOverrideActive" name="rowPositionOverrideActive" value="No" />
               <input type="hidden" id="rowPositionPayload" name="rowPositionPayload" />
             </div>
@@ -703,15 +725,15 @@
           <div class="builder-panel">
             <h3>Pattern Inputs</h3>
             <div class="builder-field-row">
-              <div class="builder-field"><label>Pipe OD (in)</label><input id="b_pipeOD" type="number" step="0.001" /></div>
-              <div class="builder-field"><label>Pipe Length (in)</label><input id="b_pipeLength" type="number" step="0.001" /></div>
+              <div class="builder-field"><label id="b_pipeODLabel">Pipe OD</label><input id="b_pipeOD" type="number" step="0.001" /><input id="b_pipeODUnit" type="hidden" /></div>
+              <div class="builder-field"><label id="b_pipeLengthLabel">Pipe Length</label><input id="b_pipeLength" type="number" step="0.001" /><input id="b_pipeLengthUnit" type="hidden" /></div>
             </div>
             <div class="builder-field-row">
-              <div class="builder-field"><label>Hole Dia (in)</label><input id="b_holeDia" type="number" step="0.001" /></div>
+              <div class="builder-field"><label id="b_holeDiaLabel">Hole Diameter</label><input id="b_holeDia" type="number" step="0.001" /><input id="b_holeDiaUnit" type="hidden" /></div>
               <div class="builder-field"><label>Rows Around Pipe</label><input id="b_rowCount" type="number" step="1" /></div>
             </div>
             <div class="builder-field-row">
-              <div class="builder-field"><label>Spacing Along Pipe (in)</label><input id="b_holeSpacing" type="number" step="0.001" /></div>
+              <div class="builder-field"><label id="b_holeSpacingLabel">Spacing Along Pipe</label><input id="b_holeSpacing" type="number" step="0.001" /><input id="b_holeSpacingUnit" type="hidden" /></div>
               <div class="builder-field"><label>Staggered?</label><select id="b_staggered"><option value="No">No</option><option value="Yes">Yes</option></select></div>
             </div>
             <input id="b_startOffset" type="hidden" value="12" />
@@ -733,10 +755,6 @@
                 </div>
                 <div class="row-override-grid" id="rowDegreeInputs"></div>
               </div>
-            </div>
-            <div class="builder-field">
-              <label>Builder Notes</label>
-              <textarea id="b_patternNotes" placeholder="Optional custom pattern note"></textarea>
             </div>
             <div class="button-row">
               <button type="button" onclick="refreshCustomPattern()">Refresh Sketch</button>
@@ -823,7 +841,6 @@
       window.clearApprovedPattern = clearApprovedPattern;
       window.refreshCustomPattern = refreshCustomPattern;
       window.pullBuilderFromRfq = pullBuilderFromRfq;
-      window.downloadCurrentHtml = downloadCurrentHtml;
       window.removeAttachment = removeAttachment;
       window.clearAttachments = clearAttachments;
       window.openPipeEndModal = openPipeEndModal;
@@ -953,20 +970,6 @@
       function setIdValue(id, v) { var el = fieldById(id); if (el) el.value = (v === null || v === undefined) ? '' : v; }
       function getIdValue(id) { var el = fieldById(id); return el ? trimText(el.value) : ''; }
 
-      function downloadCurrentHtml() {
-        try {
-          syncAttachmentPayload();
-          var html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
-          var blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-          var url = URL.createObjectURL(blob);
-          var a = document.createElement('a');
-          a.href = url;
-          a.download = 'perforating-rfq-' + new Date().toISOString().slice(0, 10) + '.html';
-          document.body.appendChild(a); a.click(); document.body.removeChild(a);
-          setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
-        } catch (err) { alert('Download blocked by this browser/app. Error: ' + err.message); }
-      }
-
       var attachmentStore = [];
       var attachmentSeq = 0;
 
@@ -1021,6 +1024,7 @@
         updateChoiceButtons();
         updateProjectTimingVisibility();
         updatePipeEndSummary();
+        updatePartialDetailsVisibility();
         updateStaggerOffset();
         if (getCheckedValue('pattern') === 'Custom' && getRowOverrideActive()) buildRowOverrideInputs(readRowOverrideDegrees() || evenDegrees(getBuilderRowCount()));
         else syncRowPositionPayload();
@@ -1042,6 +1046,14 @@
           if (show) fields[i].className = fields[i].className.replace(/\s*project-date-hidden/g, '');
           else if (fields[i].className.indexOf('project-date-hidden') === -1) fields[i].className += ' project-date-hidden';
         }
+      }
+
+      function updatePartialDetailsVisibility() {
+        var enabled = getCheckedValue('partial') === 'Partial';
+        var details = document.getElementById('partialDetails');
+        var prompt = document.getElementById('partialDetailsPrompt');
+        if (details) details.className = enabled ? '' : 'partial-details-hidden';
+        if (prompt) prompt.style.display = enabled ? 'none' : '';
       }
 
       function updatePipeEndSummary() {
@@ -1069,8 +1081,9 @@
         else { setFieldValue('pipeEnds', ''); closePipeEndModal(); updatePipeEndSummary(); }
       }
 
-      function toNumber(v) { var c = String(v || '').replace(/[^0-9.\-]/g, ''); var p = parseFloat(c); return isNaN(p) ? null : p; }
+      function toNumber(v) { var c = String(v === null || v === undefined ? '' : v).replace(/[^0-9.\-]/g, ''); var p = parseFloat(c); return isNaN(p) ? null : p; }
       function unitToInches(v, unit) { var n = toNumber(v); if (n === null) return null; unit = String(unit || '').toLowerCase(); if (unit === 'ft' || unit === 'feet') return n * 12; if (unit === 'm' || unit === 'meter' || unit === 'metres' || unit === 'meters') return n * 39.37007874; if (unit === 'mm' || unit === 'millimeters') return n / 25.4; return n; }
+      function inchesToUnit(v, unit) { var n = toNumber(v); if (n === null) return null; unit = String(unit || '').toLowerCase(); if (unit === 'ft' || unit === 'feet') return n / 12; if (unit === 'm' || unit === 'meter' || unit === 'metres' || unit === 'meters') return n / 39.37007874; if (unit === 'mm' || unit === 'millimeters') return n * 25.4; return n; }
       function formatNumber(v) { if (v === null || isNaN(v)) return ''; if (Math.round(v * 100) / 100 === Math.round(v)) return String(Math.round(v)); return String(Math.round(v * 100) / 100); }
       function formatInches(v) { if (v === null || isNaN(v)) return ''; return formatNumber(v) + '"'; }
 
@@ -1226,7 +1239,7 @@
         var usableLength = Math.max(0, pipeLength - startOffset - endOffset);
         var holesPerRow = holeSpacing > 0 ? Math.floor(usableLength / holeSpacing) + 1 : 0;
         var totalHolesPerPipe = holesPerRow * rowCount;
-        return { material: p.material, pipeSpec: p.pipeSpec, numberOfLengths: p.numberOfLengths || 1, pipeOD: pipeOD, pipeLength: pipeLength, holeDia: holeDia, holeSpacing: holeSpacing, rowCount: rowCount, rowDegrees: rowDegrees, rowPositionOverride: p.rowPositionOverride, startOffset: startOffset, endOffset: endOffset, usableLength: usableLength, holesPerRow: holesPerRow, totalHolesPerPipe: totalHolesPerPipe, totalHolesAllLengths: totalHolesPerPipe * (p.numberOfLengths || 1), staggered: p.staggered, staggerOffset: staggerOffset, patternNotes: p.patternNotes };
+        return { material: p.material, pipeSpec: p.pipeSpec, numberOfLengths: p.numberOfLengths || 1, pipeOD: pipeOD, pipeLength: pipeLength, holeDia: holeDia, holeSpacing: holeSpacing, rowCount: rowCount, rowDegrees: rowDegrees, rowPositionOverride: p.rowPositionOverride, startOffset: startOffset, endOffset: endOffset, usableLength: usableLength, holesPerRow: holesPerRow, totalHolesPerPipe: totalHolesPerPipe, totalHolesAllLengths: totalHolesPerPipe * (p.numberOfLengths || 1), staggered: p.staggered, staggerOffset: staggerOffset };
       }
 
       function renderManufacturingDetails() {
@@ -1333,32 +1346,37 @@
           startOffset: unitToInches(getFieldValue('holeStartOffset') || '12', getSelectValue('startOffsetUnit')),
           endOffset: unitToInches(getFieldValue('holeEndOffset') || '12', getSelectValue('endOffsetUnit')),
           staggered: getCheckedValue('staggerRequired') === 'Yes',
-          staggerOffset: unitToInches(getFieldValue('staggerOffset'), getSelectValue('staggerOffsetUnit')),
-          patternNotes: getFieldValue('patternNotes')
+          staggerOffset: unitToInches(getFieldValue('staggerOffset'), getSelectValue('staggerOffsetUnit'))
         };
+      }
+
+      function setBuilderMeasurement(id, label, value, unit) {
+        setIdValue(id, value);
+        setIdValue(id + 'Unit', unit);
+        var labelEl = document.getElementById(id + 'Label');
+        if (labelEl) labelEl.textContent = label + ' (' + unit + ')';
       }
 
       function pullBuilderFromRfq() {
         var p = collectRfqPatternData();
-        setIdValue('b_pipeOD', p.pipeOD === null ? '' : formatNumber(p.pipeOD));
-        setIdValue('b_pipeLength', p.pipeLength === null ? '' : formatNumber(p.pipeLength));
-        setIdValue('b_holeDia', p.holeDia === null ? '' : formatNumber(p.holeDia));
+        setBuilderMeasurement('b_pipeOD', 'Pipe OD', getFieldValue('pipeOD'), getSelectValue('pipeODUnit') || 'inches');
+        setBuilderMeasurement('b_pipeLength', 'Pipe Length', getFieldValue('pipeLength'), getSelectValue('pipeLengthUnit') || 'ft');
+        setBuilderMeasurement('b_holeDia', 'Hole Diameter', getFieldValue('holeDiameter'), getSelectValue('holeDiameterUnit') || 'mm');
         setIdValue('b_rowCount', p.rowCount || 1);
-        setIdValue('b_holeSpacing', p.holeSpacing === null ? '' : formatNumber(p.holeSpacing));
+        setBuilderMeasurement('b_holeSpacing', 'Spacing Along Pipe', getFieldValue('holeSpacing'), getSelectValue('holeSpacingUnit') || 'mm');
         setIdValue('b_startOffset', p.startOffset === null ? 12 : formatNumber(p.startOffset));
         setIdValue('b_endOffset', p.endOffset === null ? 12 : formatNumber(p.endOffset));
         setIdValue('b_staggered', p.staggered ? 'Yes' : 'No');
-        setIdValue('b_patternNotes', p.patternNotes || '');
         if (getRowOverrideActive()) buildRowOverrideInputs(p.rowDegrees && p.rowDegrees.length ? p.rowDegrees : evenDegrees(p.rowCount || 1));
         refreshCustomPattern();
       }
 
       function collectBuilderPatternData() {
         var rfq = collectRfqPatternData();
-        var pipeOD = toNumber(getIdValue('b_pipeOD')) || 0;
-        var pipeLength = toNumber(getIdValue('b_pipeLength')) || 0;
-        var holeDia = toNumber(getIdValue('b_holeDia')) || 0;
-        var holeSpacing = toNumber(getIdValue('b_holeSpacing')) || 0;
+        var pipeOD = unitToInches(getIdValue('b_pipeOD'), getIdValue('b_pipeODUnit')) || 0;
+        var pipeLength = unitToInches(getIdValue('b_pipeLength'), getIdValue('b_pipeLengthUnit')) || 0;
+        var holeDia = unitToInches(getIdValue('b_holeDia'), getIdValue('b_holeDiaUnit')) || 0;
+        var holeSpacing = unitToInches(getIdValue('b_holeSpacing'), getIdValue('b_holeSpacingUnit')) || 0;
         var rowCount = Math.max(1, Math.floor(toNumber(getIdValue('b_rowCount')) || 1));
         var startOffset = toNumber(getIdValue('b_startOffset')) || 0;
         var endOffset = toNumber(getIdValue('b_endOffset')) || 0;
@@ -1369,7 +1387,7 @@
         var rowDegrees = overrideDegrees && overrideDegrees.length === rowCount ? overrideDegrees.slice() : evenDegrees(rowCount);
         var staggerOffset = staggered && holeSpacing > 0 ? holeSpacing / 2 : null;
         var totalHolesPerPipe = holesPerRow * rowCount;
-        return { material: rfq.material, pipeSpec: rfq.pipeSpec, numberOfLengths: rfq.numberOfLengths || 1, pipeOD: pipeOD, pipeLength: pipeLength, holeDia: holeDia, holeSpacing: holeSpacing, rowCount: rowCount, rowDegrees: rowDegrees, rowPositionOverride: rfq.rowPositionOverride, startOffset: startOffset, endOffset: endOffset, usableLength: usableLength, holesPerRow: holesPerRow, totalHolesPerPipe: totalHolesPerPipe, totalHolesAllLengths: totalHolesPerPipe * (rfq.numberOfLengths || 1), staggered: staggered, staggerOffset: staggerOffset, patternNotes: getIdValue('b_patternNotes'), approvedAt: new Date().toISOString() };
+        return { material: rfq.material, pipeSpec: rfq.pipeSpec, numberOfLengths: rfq.numberOfLengths || 1, pipeOD: pipeOD, pipeLength: pipeLength, holeDia: holeDia, holeSpacing: holeSpacing, rowCount: rowCount, rowDegrees: rowDegrees, rowPositionOverride: rfq.rowPositionOverride, startOffset: startOffset, endOffset: endOffset, usableLength: usableLength, holesPerRow: holesPerRow, totalHolesPerPipe: totalHolesPerPipe, totalHolesAllLengths: totalHolesPerPipe * (rfq.numberOfLengths || 1), staggered: staggered, staggerOffset: staggerOffset, approvedAt: new Date().toISOString() };
       }
 
       function metric(label, value) { return '<div class="metric"><div class="k">' + label + '</div><div class="v">' + value + '</div></div>'; }
@@ -1394,13 +1412,12 @@
       function approveCustomPattern() {
         approvedPattern = collectBuilderPatternData();
         setRadioValue('pattern', 'Custom');
-        setFieldValue('holeDiameter', formatNumber(approvedPattern.holeDia));
-        setFieldValue('holeSpacing', formatNumber(approvedPattern.holeSpacing));
+        setFieldValue('holeDiameter', formatNumber(inchesToUnit(approvedPattern.holeDia, getSelectValue('holeDiameterUnit'))));
+        setFieldValue('holeSpacing', formatNumber(inchesToUnit(approvedPattern.holeSpacing, getSelectValue('holeSpacingUnit'))));
         setFieldValue('holeRows', approvedPattern.rowCount);
         setFieldValue('holeStartOffset', formatNumber(approvedPattern.startOffset));
         setFieldValue('holeEndOffset', formatNumber(approvedPattern.endOffset));
         setRadioValue('staggerRequired', approvedPattern.staggered ? 'Yes' : 'No');
-        if (approvedPattern.patternNotes) setFieldValue('patternNotes', approvedPattern.patternNotes);
         renderPreviewPattern(approvedPattern);
         updateCards();
         updateSummary();
@@ -1486,6 +1503,7 @@
 
       addEvent(form, 'input', handleFormChange);
       addEvent(form, 'change', handleFormChange);
+      addEvent(window, 'beforeprint', function () { if (getSpecStatus().missing.length === 0) previewPattern(); });
 
       ['b_pipeOD','b_pipeLength','b_holeDia','b_rowCount','b_holeSpacing','b_startOffset','b_endOffset','b_staggered'].forEach(function (id) {
         var el = document.getElementById(id);
